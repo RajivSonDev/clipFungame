@@ -12,5 +12,8 @@ export class ModalComponent {
     //console.log(modal.visible)
   }
 
+  closeModal(){
+    this.modal.toggleModal();
+  }
 
 }
