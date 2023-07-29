@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ModalService } from '../service/modal.service';
 
 @Component({
   selector: 'app-nav',
@@ -6,5 +7,16 @@ import { Component } from '@angular/core';
   styleUrls: ['./nav.component.css']
 })
 export class NavComponent {
+
+  constructor(public modal:ModalService){
+
+  }
+
+  openModal($event:Event){
+    $event.preventDefault() // it will be prevent defualt behaviour of the browser 
+    
+    this.modal.toggleModal()
+
+  }
 
 }
