@@ -14,8 +14,7 @@ export class NavComponent {
 
   openModal($event:Event){
     $event.preventDefault() // it will be prevent defualt behaviour of the browser 
-    
-    this.modal.toggleModal()
+    this.modal.toggleModal('auth')
 
   }
 

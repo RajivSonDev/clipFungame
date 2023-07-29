@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from './modal/modal.component';
+import { BrowserModule } from '@angular/platform-browser';
 
 
 
@@ -9,7 +10,8 @@ import { ModalComponent } from './modal/modal.component';
     ModalComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    BrowserModule
   ],
   exports:[
     ModalComponent
