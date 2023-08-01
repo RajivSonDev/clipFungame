@@ -5,7 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { TabsContainerComponent } from './tabs-container/tabs-container.component';
 import { TabsComponent } from './tabs/tabs.component';
 import { InputComponent } from './input/input.component';
-
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -17,12 +17,14 @@ import { InputComponent } from './input/input.component';
   ],
   imports: [
     CommonModule,
-    BrowserModule
+    BrowserModule,
+    ReactiveFormsModule
   ],
   exports:[
     ModalComponent,
     TabsContainerComponent,
-    TabsComponent
+    TabsComponent,
+    InputComponent
   ]
 })
 export class SharedModule { }
