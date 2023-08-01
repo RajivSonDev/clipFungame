@@ -22,7 +22,7 @@ export class TabsContainerComponent implements AfterContentInit {
       this.selectTab(this.tabs!.first)               // ! it will be non null
     }
 
-    this.tabs
+    this.tabs  
     //console.log(this.tabs)
   }
 
