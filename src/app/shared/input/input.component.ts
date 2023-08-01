@@ -9,5 +9,10 @@ import { FormControl } from '@angular/forms';
 export class InputComponent {
 
   @Input() control:FormControl=new FormControl()   // value will be override by @input director
+  @Input() type="text" 
+  @Input() placeholder=''
+
+  @Input() format=''
+
 
 }
