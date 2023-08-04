@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AuthService } from 'src/app/service/auth.service';
+import IUser from 'src/app/model/user.model';
 
 @Component({
   selector: 'app-register',
@@ -7,12 +11,16 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+
+  inSubmission=false
   
+  constructor(private auth:AuthService){}
+
   name=new FormControl('',[
     Validators.required,                  // validator will force the value
     Validators.minLength(3)
   ])
-  email=new FormControl('',[
+  email=new FormControl<number | null>(null,[
     Validators.email,
     Validators.required
   ])
@@ -48,11 +56,39 @@ export class RegisterComponent {
    phoneNumber:this.phoneNumber
   })
 
-  register() {
+
+  /*The async keyword allows functions to be defined in a sequential,
+   synchronous manner (although the execution will be asynchronous). The 
+   await keyword makes it easier to handle the asynchronous nature of code. Together,
+    these two features make writing asynchronous code feel more like writing synchronous 
+    code*/
+
+
+  /*  Asynchronous functions are prefixed with the async
+  keyword; await suspends the execution until an asynchronous 
+  function return promise is fulfilled and unwraps the value from the Promise returned.*/
+
+
+  async register() {                
     console.log("register called");
     this.showAlert=true
     this.alertMsg="Please wait! Your account is being created."
     this.alertColor='blue'
+    this.inSubmission=true
+
+    try{
+         await this.auth.createUser(this.registerForm.value)
+      }
+    catch(e){
+        console.log(e)
+        this.alertMsg="An unexpected error occured. Please try again later."
+        this.alertColor='red'
+        this.inSubmission=false
+        return
+    }
+    this.alertMsg='Success! Your account has been created.'
+    this.alertColor='green'
+
   }
 
 }
