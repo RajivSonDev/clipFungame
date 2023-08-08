@@ -4,6 +4,8 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { AuthService } from 'src/app/service/auth.service';
 import IUser from 'src/app/model/user.model';
+import { RegisterValidators } from '../validators/register-validators';
+import { EmailTaken } from '../validators/email-taken';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +16,10 @@ export class RegisterComponent {
 
   inSubmission=false
   
-  constructor(private auth:AuthService){}
+  constructor(
+    private auth:AuthService,
+    private emailTaken:EmailTaken
+    ){}
 
   name=new FormControl('',[
     Validators.required,                  // validator will force the value
@@ -22,8 +27,8 @@ export class RegisterComponent {
   ])
   email=new FormControl<number | null>(null,[
     Validators.email,
-    Validators.required
-  ])
+    Validators.required,
+  ],[this.emailTaken.validate])
   age=new FormControl('',[
     Validators.required,
     Validators.min(18),
@@ -54,7 +59,9 @@ export class RegisterComponent {
    password:this.password,
    confirm_password:this.confirm_password,
    phoneNumber:this.phoneNumber
-  })
+  },[RegisterValidators.match('password','confirm_password')])  // we are sending function as reference so angular 
+  //can call the function
+
 
 
   /*The async keyword allows functions to be defined in a sequential,
