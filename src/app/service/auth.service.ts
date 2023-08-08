@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import IUser from '../model/user.model';
-import { delay, map } from 'rxjs/operators';
+import { delay, map, filter, switchMap } from 'rxjs/operators';
+import { ActivatedRoute, Router,  NavigationEnd } from '@angular/router';
 
 
 @Injectable({
@@ -15,9 +16,12 @@ export class AuthService {
   private userCollection:AngularFirestoreCollection<IUser>
   public isAuthenticated$:Observable<boolean>
   public isAuthenticatedWithDelay$: Observable<boolean>
+  public redirect = false
 
   constructor(private auth:AngularFireAuth,
-    private db:AngularFirestore) { 
+    private db:AngularFirestore,
+    private router:Router,
+    private route:ActivatedRoute) { 
       this.userCollection=db.collection('users')
       this.isAuthenticated$=auth.user.pipe(                                 // observable 
         map(user=>!!user)
@@ -25,6 +29,15 @@ export class AuthService {
       this.isAuthenticatedWithDelay$=this.isAuthenticated$.pipe(
         delay(1000)
       )
+
+      this.router.events.pipe(
+        filter(e =>e instanceof NavigationEnd),
+        map(e => this.route.firstChild) ,
+        switchMap(route=>route?.data ?? of({authOnly:false}))   // ?? value is null or undefined
+       ).subscribe((data)=>{
+        this.redirect=data.authOnly ?? false;
+       })
+      //this.route.data.subscribe(console.log)
     }
 
   public async createUser(userData:any){
@@ -54,6 +67,20 @@ export class AuthService {
       displayName:userData.name
     })
 
+  }
+
+  public async logout($event?:Event){            // it is asychronous process 
+    
+    if($event){
+      $event.preventDefault()
+    }
+    await this.auth.signOut()         // wait for the process to get done
+
+    if(this.redirect){
+      await this.router.navigateByUrl('/')   
+    }
+
+   
   }
 
 }
