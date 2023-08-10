@@ -14,6 +14,7 @@ import { VideoModule } from './video/video.module';
 import { ClipComponent } from './clip/clip.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { SharedModule } from './shared/shared.module';
+import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { SharedModule } from './shared/shared.module';
     AngularFirestoreModule,
     VideoModule,
     SharedModule,
+    AngularFireStorageModule,
     AppRoutingModule          // need to consider the series, approutingmodule should stay last 
   ],
   providers: [],
