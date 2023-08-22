@@ -1,21 +1,27 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed , ComponentFixture} from "@angular/core/testing";
+import { AboutComponent } from "./about.component";
 
-import { AboutComponent } from './about.component';
 
-describe('AboutComponent', () => {
-  let component: AboutComponent;
-  let fixture: ComponentFixture<AboutComponent>;
+// Register the component
+describe('About Component',()=>{
+  
+  let fixture:ComponentFixture<AboutComponent>;
+  let componet:AboutComponent;
+  
+  beforeEach(async ()=>{
+    await TestBed.configureTestingModule({
+      declarations:[AboutComponent],
+    }).compileComponents();
+  })
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [AboutComponent]
-    });
-    fixture = TestBed.createComponent(AboutComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+
+  beforeEach(()=>{
+     fixture=TestBed.createComponent(AboutComponent);
+     componet=fixture.componentInstance;
+     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  it('should create',()=>{
+    expect(componet).toBeTruthy();
+  })
 });
