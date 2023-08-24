@@ -85,6 +85,13 @@ export class FfmpegService  {
     return screenshots
   }
 
-  
+  async blobFromURL(url:string){
+    const response=await fetch(url)  // send request and get response, browser will handle
+
+    const blob = await response.blob()
+
+    return blob
+
+  }
 
 }

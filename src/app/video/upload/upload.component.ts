@@ -9,6 +9,7 @@ import { ClipService } from 'src/app/service/clip.service';
 import { Router } from '@angular/router';
 import firebase from 'firebase/compat/app';
 import { FfmpegService } from 'src/app/service/ffmpeg.service';
+import { combineLatest,forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-upload',
@@ -29,6 +30,8 @@ export class UploadComponent implements OnDestroy{
   user:any = null
   task?:AngularFireUploadTask
   screenshots:string[] = []
+  selectedScreenshot:string=''
+  screenshottask?:AngularFireUploadTask
 
   title=new FormControl('',{
     validators:[
@@ -75,17 +78,18 @@ export class UploadComponent implements OnDestroy{
 
     this.screenshots=await this.ffmpegService.getScreenshots(this.file)
 
+    this.selectedScreenshot=this.screenshots[0]
+
     this.title.setValue(
       this.file.name.replace(/\.[^/.]+$/,'')
     )
     console.log(this.file)
     this.nextStep=true
-
    
   }
 
 
-  uploadFile(){
+async uploadFile(){
     this.uploadForm.disable()
     this.showAlert=true
     this.alertColor='blue'
@@ -95,15 +99,78 @@ export class UploadComponent implements OnDestroy{
     const clipFileName = uuid()
     this.showPercentage = true
     const clipPath = `clips/${this.file?.name}.mp4`
-    
+
+    const screenshotBlob=await this.ffmpegService.blobFromURL(
+      this.selectedScreenshot
+    )
+
+    const screenshotPath = `screenshots/${clipFileName}.png`
     
     this.task = this.storage.upload(clipPath,this.file)   // file will be upload from this function
     // above function is observable reqtune object
     const clipRef = this.storage.ref(clipPath) // reference to video specific path
 
-    this.task.percentageChanges().subscribe(progress => {
-      this.percent=progress as number / 100
-    }) 
+    this.screenshottask=this.storage.upload(screenshotPath,screenshotBlob)
+
+    const screenshotRef = this.storage.ref(screenshotPath)
+
+    combineLatest([
+      this.task.percentageChanges(),
+      this.screenshottask.percentageChanges()
+    ]).subscribe(
+      (progress) => {
+        const [clipProcess,screenshotProgress]=progress
+
+        if(!clipProcess || !screenshotProgress){
+          return 
+        }
+
+        const total = clipProcess + screenshotProgress
+
+        this.percent=total as number / 200
+      }
+    )
+
+
+   // fork join use to combine two observables       
+   forkJoin([
+    this.task.snapshotChanges(),
+    this.screenshottask.snapshotChanges()
+   ]).pipe(
+    switchMap(()=>forkJoin([
+      clipRef.getDownloadURL(),
+      screenshotRef.getDownloadURL()]))
+   ).subscribe({
+
+    next:async (urls) =>{
+      const [clipURL,screenshotURL]=urls
+
+      const clip = {
+        uid:this.user?.uid as string,
+        displayName: this.user?.displayName as string,
+        title: this.title.value,
+        fileName: `${clipFileName}.mp4`,
+        url:clipURL,
+        screenshotFileName:`${clipFileName}.png`,
+        screenshotUrl:screenshotURL,
+        timestamp:firebase.firestore.FieldValue.serverTimestamp()
+      }
+
+
+      this.alertMsg='Success! Your clip is now ready to share with Friends'
+      this.showPercentage=false
+      this.alertColor='green'
+
+      setTimeout(()=>{                    // starting Time out 
+          this.router.navigate([
+            'clip',clip.uid
+          ])
+        },1000)
+
+    }
+
+   })
+    
   }
 
 }

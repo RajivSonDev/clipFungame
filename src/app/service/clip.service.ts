@@ -61,7 +61,13 @@ export class ClipService {
       // a reference need to be create since we are going to intereatct with database
     const clipRef=this.storage.ref(`clips/${clip.fileName}`)
 
+    const screenshotRef=this.storage.ref(
+      `screenshots/${clip.screenshotFileName}`
+    )
+
     await clipRef.delete()  // delete file the 
+
+    await screenshotRef.delete()
 
     await this.clipsCollection.doc(clip.docID).delete() // deleting from document
 
