@@ -68,13 +68,10 @@ export class UploadComponent implements OnDestroy{
       return 
     }
 
-    this.screenshots=await this.ffmpegService.getScreenshots(this.file)
-    // changing input value
     this.title.setValue(
       this.file.name.replace(/\.[^/.]+$/,'')
     )
     console.log(this.file)
-    console.log(this.screenshots)
     this.nextStep=true
   }
 
@@ -98,47 +95,6 @@ export class UploadComponent implements OnDestroy{
     this.task.percentageChanges().subscribe(progress => {
       this.percent=progress as number / 100
     }) 
-
-    this.task.snapshotChanges().pipe(
-      last(),
-      switchMap(()=>clipRef.getDownloadURL()) // getDownloadURL subscribe to observable 
-      ).subscribe({
-      next:async (url)=>{
-        const clip={
-          uid:this.user?.uid as string,
-          displayName:this.user?.displayName as string,
-          title:this.title.value,
-          fileName:`${clipFileName}.mp4`,
-          url,
-          timestamp:firebase.firestore.FieldValue.serverTimestamp()   // storing time stamp 
-        }
-
-        const clipDocRef = await this.clipService.createClip(clip) // taking reference 
-        console.log(clip) 
-
-        this.alertColor='green'
-        this.alertMsg='Success! Your clip is now ready to share with Friends'
-        this.showPercentage=false
-
-        setTimeout(()=>{                    // starting Time out 
-          this.router.navigate([
-            'clip',clipDocRef.id
-          ])
-        },1000)
-
-
-      },
-      error:(error)=>{
-        this.alertColor='red',
-        this.uploadForm.enable( )
-        this.alertMsg= 'Upload Failed! Please try again later.'
-        this.inSubmission=true
-        this.showPercentage=false
-        console.error(error)
-      }
-    })
-
-
   }
 
 }

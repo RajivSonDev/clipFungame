@@ -74,8 +74,8 @@
           "defaultConfiguration": "development",
           "options": {
             "headers": {
-               "Cross-Origin-Opener-Policy":"same-orgin",
-               "Cross-origin-Embedded-Policy":"require-corp"
+               "Cross-Origin-Opener-Policy":"same-origin",
+               "Cross-Origin-Embedder-Policy":"require-corp"
             }
           }
         },
