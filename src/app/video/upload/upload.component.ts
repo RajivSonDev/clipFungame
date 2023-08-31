@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import firebase from 'firebase/compat/app';
 import { FfmpegService } from 'src/app/service/ffmpeg.service';
 import { combineLatest,forkJoin } from 'rxjs';
+import IClip from 'src/app/model/clip.model'; 
 
 @Component({
   selector: 'app-upload',
@@ -67,7 +68,6 @@ export class UploadComponent implements OnDestroy{
     }
 
     this.isDragover=false;
-    this.nextStep=true
     this.file=($event as DragEvent).dataTransfer?
     ($event as DragEvent).dataTransfer?.files.item(0) ?? null :
     ($event.target as HTMLInputElement).files?.item(0)?? null
@@ -83,7 +83,7 @@ export class UploadComponent implements OnDestroy{
     this.title.setValue(
       this.file.name.replace(/\.[^/.]+$/,'')
     )
-    console.log(this.file)
+  
     this.nextStep=true
    
   }
@@ -91,6 +91,7 @@ export class UploadComponent implements OnDestroy{
 
 async uploadFile(){
     this.uploadForm.disable()
+
     this.showAlert=true
     this.alertColor='blue'
     this.alertMsg='Please wait! Your Clip is being uploaded'
@@ -106,6 +107,8 @@ async uploadFile(){
 
     const screenshotPath = `screenshots/${clipFileName}.png`
     
+    console.log("File is here :"+this.file?.toString());
+
     this.task = this.storage.upload(clipPath,this.file)   // file will be upload from this function
     // above function is observable reqtune object
     const clipRef = this.storage.ref(clipPath) // reference to video specific path
@@ -146,16 +149,19 @@ async uploadFile(){
       const [clipURL,screenshotURL]=urls
 
       const clip = {
-        uid:this.user?.uid as string,
+        uid: this.user?.uid as string,
         displayName: this.user?.displayName as string,
         title: this.title.value,
         fileName: `${clipFileName}.mp4`,
-        url:clipURL,
-        screenshotFileName:`${clipFileName}.png`,
-        screenshotUrl:screenshotURL,
-        timestamp:firebase.firestore.FieldValue.serverTimestamp()
+        url: clipURL,
+        screenshotURL,
+        screenshotFileName: `${clipFileName}.png`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }
 
+      const clipDocRef = await this.clipService.createClip(clip as IClip)
+
+      console.log(clip)
 
       this.alertMsg='Success! Your clip is now ready to share with Friends'
       this.showPercentage=false
@@ -167,6 +173,14 @@ async uploadFile(){
           ])
         },1000)
 
+    },
+    error:(error)=>{
+      this.uploadForm.enable()
+      this.alertColor='red';
+      this.alertMsg="Upload Failed! Please Try Again Later";
+      this.inSubmission=true;
+      this.showPercentage=false;
+      console.error(error);
     }
 
    })
