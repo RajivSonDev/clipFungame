@@ -13,15 +13,15 @@ const routes: Routes = [
     clip:ClipService
   }},
   {
-    path:'dashboard', // dashboard/manage , dashboard/upload
+    path:'', // dashboard/manage , dashboard/upload
     loadChildren: async () => (await import('./video/video.module')).VideoModule    // Explicitly telling 
-    // Angular to load the module
+    // Angular to load
   },
   {path:'**',component:NotFoundComponent},
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes)],   
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
